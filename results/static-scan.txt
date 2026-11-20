@@ -1,0 +1,103 @@
+modules: 175187   bytes: 1030531854   lines: 17374215
+import edges: 753569   cycles(unsorted modules): 0
+Main closure: 175187 modules, 1030531854 bytes (100.0% of modules)
+not reachable from Main: 0 modules
+max import depth (levels): 203   in Main closure: 203
+heaviest chain by source bytes: 2861408 bytes ending at Main (0.28% of all bytes => parallel speedup bound ~360x if time~bytes)
+level widths (level:count): 1:5927 2:4979 3:4138 4:3582 5:3355 6:2937 7:2740 8:2515 9:2545 10:2164 11:2057 12:2071 13:2069 14:1898 15:1721 16:1635 17:1635 18:1658 19:1713 20:1744 21:1668 22:1651 23:1621 24:1764 25:1809 26:1703 27:1706 28:1775 29:1765 30:1890 31:1800 32:1652 33:1485 34:1498 35:1697 36:1718 37:1695 38:1571 39:1639 40:1427 41:1374 42:1577 43:1573 44:1740 45:1837 46:1889 47:1754 48:1708 49:1920 50:1677 51:1381 52:1470 53:1523 54:1520 55:1545 56:1661 57:1599 58:1390 59:1396 60:1485 ...
+top-level: Development=141928, Formalism=18254, GroundTheory=8507, ReciprocityTheory=3845, CompanionTheory=2027, PositivityTheory=449, Lemmata=167, BuildAid=5, Supplements=3, Statements=1, Main=1
+external imports: Mathlib=155753, Mathlib.Topology.Algebra.ClopenNhdofOne=18, Mathlib.RingTheory.Teichmuller=6, Lean.LibrarySuggestions.Basic=5, Lean.Elab.Command=5, Mathlib.Analysis.Calculus.BumpFunction.FiniteDimension=5, Mathlib.Analysis.Fourier.FiniteAbelian.PontryaginDuality=4, Mathlib.NumberTheory.Multiplicity=4, Mathlib.RingTheory.Jacobson.Ring=4, Mathlib.GroupTheory.FiniteAbelian.Duality=4, Mathlib.RingTheory.Ideal.KrullsHeightTheorem=4, Mathlib.Analysis.Complex.Liouville=4, Mathlib.AlgebraicGeometry.AlgClosed.Basic=4, Mathlib.RingTheory.PowerSeries.Substitution=4, Mathlib.LinearAlgebra.Lagrange=3, Mathlib.Topology.Algebra.MvPolynomial=3, Mathlib.NumberTheory.Padics.Hensel=3, Mathlib.RingTheory.Valuation.LocalSubring=3, Mathlib.RingTheory.LocalRing.ResidueField.Ideal=3, Mathlib.FieldTheory.IsAlgClosed.Basic=3, Mathlib.RingTheory.SimpleModule.Basic=3, Mathlib.Geometry.Manifold.PartitionOfUnity=3, Mathlib.RingTheory.Ideal.GoingUp=3, Batteries.Tactic.OpenPrivate=3, Mathlib.Analysis.Calculus.Deriv.ZPow=3, Mathlib.Algebra.DualNumber=3, Mathlib.RingTheory.RingHom.Etale=3, Mathlib.Analysis.Matrix.PosDef=3, Mathlib.Analysis.SpecialFunctions.JapaneseBracket=3, Mathlib.Analysis.SpecialFunctions.Log.Base=3, Mathlib.RingTheory.PowerSeries.WeierstrassPreparation=3, Mathlib.Analysis.InnerProductSpace.TensorProduct=3, Mathlib.LinearAlgebra.Matrix.Charpoly.Univ=2, Mathlib.RingTheory.DedekindDomain.Different=2, Mathlib.GroupTheory.Perm.Fin=2, Mathlib.NumberTheory.PrimesCongruentOne=2, Mathlib.RingTheory.Filtration=2, Mathlib.RingTheory.GradedAlgebra.Radical=2, Mathlib.NumberTheory.LSeries.PrimesInAP=2, Mathlib.RingTheory.AdicCompletion.RingHom=2
+no-import files: 0
+decl keywords: theorem=784092, def=212817, lemma=34663, abbrev=13202, structure=8286, instance=7598, example=4662, inductive=121, class=43
+
+AUDIT (pattern: total hits / files; in Main closure: files) -- comments and strings stripped
+  partial                     2 hits       2 files   main-closure files: 2
+      Formalism.HermitianCurvature.HermitianCurvatureProofs.CutCptCopy x1
+      Formalism.LocalToGlobal.NumberFieldFamilies.OwnStruct x1
+  elab                        4 hits       3 files   main-closure files: 3
+      Formalism.HermitianCurvature.HermitianCurvatureProofs.CutCptCopy x1
+      Formalism.LocalToGlobal.IndefiniteReal.HeckeNonvanishing.Imports x1
+      Formalism.LocalToGlobal.NumberFieldFamilies.OwnStruct x2
+  open_Lean                   4 hits       4 files   main-closure files: 4
+      Formalism.HermitianCurvature.HermitianCurvatureProofs.CutCptCopy x1
+      Formalism.LocalToGlobal.IndefiniteReal.HeckeNonvanishing.Imports x1
+      Formalism.LocalToGlobal.NumberFieldFamilies.OwnStruct x1
+      Formalism.SharpRestriction.RamificationFrobenius.TotientGaloisClasses.EvalFrameOrd x1
+  run_cmd                     5 hits       5 files   main-closure files: 5
+      BuildAid.D1 x1
+      BuildAid.D2 x1
+      BuildAid.D3 x1
+      BuildAid.D4 x1
+      BuildAid.D5 x1
+  IO                         86 hits      24 files   main-closure files: 24
+  macro                      87 hits      64 files   main-closure files: 64
+  unseal_irreducible        114 hits      77 files   main-closure files: 77
+  env_hack                 1197 hits     442 files   main-closure files: 442
+  notation                 1723 hits     953 files   main-closure files: 953
+  nolint_etc               1987 hits    1355 files   main-closure files: 1355
+  debug_option             2013 hits     318 files   main-closure files: 318
+  decide_tac               8185 hits    2455 files   main-closure files: 2455
+  local_instance          51052 hits   47013 files   main-closure files: 47013
+  attr_instance           51929 hits   47668 files   main-closure files: 47668
+
+set_option histogram:
+     50873  maxHeartbeats 1000000
+     11203  autoImplicit false
+      7477  maxSynthPendingDepth 1
+      4094  synthInstance.maxHeartbeats 200000
+      3182  synthInstance.maxHeartbeats 400000
+      1877  backward.isDefEq.respectTransparency false
+      1768  maxHeartbeats 800000
+      1738  maxHeartbeats 4000000
+      1331  maxHeartbeats 2000000
+      1248  maxHeartbeats 1600000
+       874  linter.unusedSectionVars false
+       503  linter.unusedVariables false
+       272  linter.unusedSimpArgs false
+       256  maxHeartbeats 400000
+       181  genSizeOfSpec false
+       179  genInjectivity false
+       160  maxHeartbeats 8000000
+       122  linter.style.haveILetI false
+        87  backward.isDefEq.respectTransparency.types false
+        63  maxHeartbeats 3200000
+        58  synthInstance.maxHeartbeats 160000
+        46  linter.dupNamespace false
+        40  linter.overlappingInstances false
+        38  linter.all false
+        37  allowUnsafeReducibility true
+        35  synthInstance.maxSize 1000
+        34  linter.deprecated false
+        33  backward.defeqAttrib.useBackward true
+        31  hygiene false
+        30  synthInstance.maxHeartbeats 100000
+        23  linter.style.longLine false
+        20  maxHeartbeats 200000
+        18  maxRecDepth 100000
+        17  maxHeartbeats 600000
+        15  maxHeartbeats 3000000
+        14  maxRecDepth 20000
+        14  maxHeartbeats 16000000
+        12  synthInstance.maxHeartbeats 1000000
+        12  linter.unusedTactic false
+        12  linter.unreachableTactic false
+        10  maxHeartbeats 20000000
+         9  linter.unnecessarySeqFocus false
+         9  pp.fullNames true
+         8  synthInstance.maxSize 2000
+         8  maxHeartbeats 6000000
+         7  quotPrecheck false
+         6  maxHeartbeats 6400000
+         6  synthInstance.maxSize 1024
+         5  maxHeartbeats 10000000
+         4  maxHeartbeats 32000000
+         4  maxHeartbeats 40000000
+         4  maxHeartbeats 0
+         3  maxHeartbeats 12000000
+         3  smartUnfolding false
+         3  synthInstance.maxHeartbeats 800000
+         2  maxHeartbeats 60000000
+         2  synthInstance.maxSize 4000
+         2  backward.isDefEq.respectTransparency true
+         1  maxHeartbeats 2400000
+         1  maxHeartbeats 5000000
