@@ -5,7 +5,7 @@ Dirichlet L-functions, found with Claude ([remark.pdf](https://alpo.ge/remark.pd
 This repository records one independent check of the published archive: we compiled it, audited what the
 main theorems depend on, and re-checked every module in the Lean kernel.
 
-## Status: run in progress (updated 2026-11-20 19:25 UTC)
+## Status: run in progress (updated 2026-11-20 19:50 UTC)
 
 No verdict yet. This table is filled in as each stage finishes; nothing here should be read as a result
 until the compile, the audit and the kernel replay have all passed.
@@ -14,11 +14,23 @@ until the compile, the audit and the kernel replay have all passed.
 |---|---|
 | Archive | 14 parts from alpo.ge, concatenated sha256 `9631b4f020199e580ba86178cb56c6e9b09f690c2369a80dc4334aa93f49c7fc` |
 | Static scan of all 175,187 files | done: no `axiom`, `sorry`, `admit` or `native_decide` in the source ([results/static-scan.txt](results/static-scan.txt)) |
-| Compile all 175,187 modules (Lean v4.33.1, Mathlib tag `v4.33.1`) | **running**: 121,830 compiled, 0 failures, after 25 min on 8 LUMI-C nodes |
+| Compile all 175,187 modules (Lean v4.33.1, Mathlib tag `v4.33.1`) | **running**: 164,423 compiled (93.9%) in 48 min on 8 LUMI-C nodes, no Lean errors. The deepest modules hit a machine limit, see below; the rest is running with a workaround. |
 | `riemannHypothesis : RiemannHypothesis` is a theorem whose statement is Mathlib's own definition | queued (runs after the compile) |
 | Axioms of the five theorems in `Main.lean` | queued |
 | Kernel replay (`leanchecker`) of every project module and every Mathlib/dependency module | queued |
 | Second, independent kernel (nanoda / Comparator) | not run |
+
+### Note for anyone else building this: `vm.max_map_count`
+
+Lean maps every imported file separately, and for module-system libraries that is five files per
+module (`.olean`, `.olean.server`, `.olean.private`, `.ir`, `.ir.sig`). `import Mathlib` alone costs about
+52,000 memory mappings. Linux's traditional default limit is 65,530 per process, so on such a machine any
+module with more than roughly 12,000 transitive project imports fails with
+`failed to read file '….olean'` even though the file is fine. About 9,000 of the 175,187 modules are in
+that range, including `Main`. If you have root, `sysctl vm.max_map_count=1048576` fixes it. On LUMI we
+cannot, so [`rhshim.c`](rhshim.c) is preloaded: it lets Lean take its own read-instead-of-map fallback
+(which otherwise fails for lack of a mapping to allocate into). It changes where bytes are held, not what
+is loaded.
 
 ## What this does and does not establish
 

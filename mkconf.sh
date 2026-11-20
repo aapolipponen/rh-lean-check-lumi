@@ -22,5 +22,7 @@ print(json.dumps({
     # lean_lib GroundTheoryFields
     'lib_opts': {'GroundTheory.LocalFields.': {'synthInstance.maxHeartbeats': 400000},
                  'GroundTheory.GlobalFields.': {'synthInstance.maxHeartbeats': 400000}},
-    'threads': 1, 'timeout': 14400}, indent=1))
+    'threads': 1, 'timeout': 14400,
+    'preload': f'{base}/rhcheck/rhshim.so' if os.path.exists(f'{base}/rhcheck/rhshim.so') else '',
+    'closure': f'{base}/out/closure.tsv'}, indent=1))
 PY

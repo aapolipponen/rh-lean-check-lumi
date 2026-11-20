@@ -31,8 +31,8 @@ box() { singularity exec --containall --no-home --cleanenv --no-mount bind-paths
   --bind $B/elan:$B/elan:ro --bind $B/lean:$B/lean --bind $B/lean/src:$B/lean/src:ro \
   --bind $S/packages:$B/lean/.lake/packages --bind $S/build:$B/lean/.lake/build \
   --bind $B/cache:$B/cache --bind $REPO:$REPO:ro --bind $B/receipts:$B/receipts \
-  --env PATH=$B/elan/bin:/usr/local/bin:/usr/bin:/bin --env LANG=C.UTF-8 \
-  --env ELAN_HOME=$B/elan --env XDG_CACHE_HOME=$B/cache --pwd $B/lean $B/crowd.sif "$@"; }
+  --env PATH=$B/elan/bin:/usr/local/bin:/usr/bin:/bin --env LANG=C.UTF-8 --env LD_PRELOAD=$B/rhcheck/rhshim.so \
+  --bind $B/rhcheck:$B/rhcheck:ro --env ELAN_HOME=$B/elan --env XDG_CACHE_HOME=$B/cache --pwd $B/lean $B/crowd.sif "$@"; }
 fail=0
 for ID in "$@"; do
   OUT=$B/receipts/$ID-$SLURM_JOB_ID

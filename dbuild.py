@@ -40,7 +40,14 @@ class Coord:
             conf[k] = os.path.realpath(conf[k])
         conf['lean_path'] = [os.path.realpath(p) for p in conf.get('lean_path', [])]
         os.makedirs(os.path.join(conf['out'], 'lib'), exist_ok=True)
+        if conf.get('preload'):
+            conf['preload'] = os.path.realpath(conf['preload'])
         self.conf, self.mode = conf, mode
+        self.closure = {}
+        if conf.get('closure') and os.path.exists(conf['closure']):
+            for line in open(conf['closure']):
+                c, m = line.rstrip('\n').split('\t')
+                self.closure[m] = int(c)
         self.state = conf['state']
         os.makedirs(self.state, exist_ok=True)
         graph = json.load(open(conf['graph']))
@@ -68,6 +75,10 @@ class Coord:
         self.cost = {m: float(g['size']) + 20000.0 for m, g in graph.items()}  # bytes proxy (+import overhead)
         self.done, self.failed, self.attempts = set(), {}, collections.Counter()
         self.weight = {}
+        for m, cnt in self.closure.items():
+            w = 1 if cnt < 12000 else 2 if cnt < 20000 else 6 if cnt < 30000 else 24 if cnt < 45000 else 64 if cnt < 90000 else 112
+            if w > 1 and m in graph:
+                self.weight[m] = w
         self.cpu_s = 0.0
         self._load_previous()
         self.rev = collections.defaultdict(list)
@@ -164,10 +175,15 @@ class Coord:
             argv = [os.path.join(c['lean'], 'leanchecker'), m]
             moves = []
         lp = ':'.join(c.get('lean_path', []) + [os.path.join(c['out'], 'lib')])
+        env = {'LEAN_PATH': lp}
+        ro_extra = []
+        if c.get('preload'):                 # rhshim.so: see rhshim.c (low vm.max_map_count workaround)
+            env['LD_PRELOAD'] = c['preload']
+            ro_extra.append(os.path.dirname(c['preload']))
         return {'t': 'job', 'id': self.next_id, 'mod': m, 'argv': argv, 'moves': moves, 'files': files,
-                'env': {'LEAN_PATH': lp},
+                'env': env,
                 'cwd': c['src'], 'timeout': c.get('timeout', 14400), 'weight': self.weight.get(m, 1),
-                'ro': [c['src'], os.path.dirname(c['lean'])] + c.get('lean_path', []) + [os.path.join(c['out'], 'lib')]}
+                'ro': [c['src'], os.path.dirname(c['lean'])] + ro_extra + c.get('lean_path', []) + [os.path.join(c['out'], 'lib')]}
 
     # -- scheduling
     def dispatch(self):
