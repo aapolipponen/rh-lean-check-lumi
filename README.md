@@ -57,4 +57,4 @@ Computations were run on the LUMI supercomputer, owned by the EuroHPC Joint Unde
 CSC – IT Center for Science (Finland) and the LUMI consortium. We thank CSC for the computing resources and
 for their quick support.
 
-Run by Aapo Lipponen with Claude (Anthropic) writing and operating the checker.
+Run by Aapo Lipponen.
