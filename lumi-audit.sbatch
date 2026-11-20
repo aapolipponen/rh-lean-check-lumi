@@ -5,7 +5,7 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=128
-#SBATCH --time=02:00:00
+#SBATCH --time=04:00:00
 #SBATCH --job-name=rh-audit
 #SBATCH --output=/flash/project_462001825/rieman/logs/%x-%j.out
 set -uo pipefail
@@ -19,7 +19,7 @@ singularity exec --containall --no-home --cleanenv --no-mount bind-paths --net -
   --bind $B/elan:$B/elan:ro --bind $B/lean:$B/lean:ro --bind $B/build:$B/build:ro --bind $B/rhcheck:$B/rhcheck:ro \
   --bind $B/elan:$F/elan:ro --bind $B/lean:$F/lean:ro --bind $B/build:$F/build:ro \
   --bind $B/conf.json:$B/conf.json:ro --bind $B/verify:$B/verify --bind $OUT:$OUT --env RH_VERIFY_OUT=$OUT \
-  --env LANG=C.UTF-8 --env LD_PRELOAD=$B/rhcheck/rhshim.so --env RH_MIN_MAP=1048576 $B/crowd.sif $B/rhcheck/verify/audit.sh $B ${1:-Main} "${@:2}" 2>&1 | cut -c1-3000
+  --env LANG=C.UTF-8 --env LEAN_NUM_THREADS=${RH_THREADS:-96} --env LD_PRELOAD=$B/rhcheck/rhshim.so --env RH_MIN_MAP=1048576 $B/crowd.sif $B/rhcheck/verify/audit.sh $B ${1:-Main} "${@:2}" 2>&1 | cut -c1-6000
 rc=${PIPESTATUS[0]}
 echo "end_utc=$(date -u +%FT%TZ) exit=$rc"
 exit $rc

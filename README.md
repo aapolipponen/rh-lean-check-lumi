@@ -57,6 +57,22 @@ Modules that embed no path, `Main` and `Statements` among them, are byte-identic
 **Wall time is the import chain, not cores.** The build is a few hundred CPU-hours in total; the import
 graph is 203 levels deep, and the last 68 levels hold the 10,000 expensive modules.
 
+## How much of the archive the proof uses
+
+Measured from the compiled proof terms (`verify/Audit.lean` imports only `Lean`, loads the built
+environment and follows every constant in types and values):
+
+- `riemannHypothesis` depends on **146,437 of the 175,187 project modules (83.6%)**, 1,478,219 constants and
+  5,081 Mathlib modules. 28,750 project modules are imported by `Main` but not used by the proof.
+- Used / total by library: Development 119,090 / 141,928; Formalism 14,927 / 18,254; GroundTheory
+  6,578 / 8,507; ReciprocityTheory 3,458 / 3,845; CompanionTheory 1,882 / 2,027; PositivityTheory 343 / 449.
+- 292 declarations were walked individually (the five theorems of `Main.lean`, the 243
+  `UpperTheory.LiteratureTheorems.*`, and the main internal steps): every one depends on `propext`,
+  `Classical.choice` and `Quot.sound` only, and all 243 literature theorems are reached by the proof of RH.
+
+Per-declaration counts are in [`results/per-declaration-dependencies.tsv`](results/per-declaration-dependencies.tsv).
+This is a dependency count; it does not say which parts are new mathematics.
+
 ## Documentation of the proof's structure
 
 [`docs/`](docs/README.md) is a reader's guide to the archive: what is proved and how everything reduces to one

@@ -34,7 +34,7 @@ def constDeps (ci : ConstantInfo) : Array Name := Id.run do
   return out
 
 structure Walk where
-  seen    : NameSet := {}
+  seen    : Std.HashSet Name := {}
   axioms  : NameSet := {}
   missing : NameSet := {}
   unsafeC : NameSet := {}
@@ -73,6 +73,8 @@ unsafe def main (args : List String) : IO UInt32 := do
   let mut lines : Array String := #[]
   let mut ok := true
   lines := lines.push s!"root {root}: {env.header.moduleNames.size} modules loaded in {t1 - t0} ms"
+  IO.println s!"[progress] loaded {env.header.moduleNames.size} modules in {t1 - t0} ms"
+  (← IO.getStdout).flush
   let mut st : Walk := {}
   for p in pairs do
     if p == "@root" then
@@ -131,13 +133,15 @@ unsafe def main (args : List String) : IO UInt32 := do
       | _ =>
         ok := false
         lines := lines.push s!"FAIL {expected}: not a definition"
-      let before := st.axioms
+      -- one shared walk over all targets (the five theorems share almost all dependencies);
+      -- axioms are reported for the union below
       st := walk env thmN st
-      let own := (walk env thmN {}).axioms.toList
-      let bad := own.filter (!allowedAxioms.contains ·)
-      if !bad.isEmpty then ok := false
-      lines := lines.push s!"     axioms of {thm}: {own}   {if bad.isEmpty then "(standard only)" else s!"NON-STANDARD: {bad}"}"
-      let _ := before
+      lines := lines.push s!"     walked {thm}: {st.seen.size} constants reached so far, axioms so far {st.axioms.toList}"
+      IO.println s!"[progress] walked {thm}: {st.seen.size} constants so far at {(← IO.monoMsNow) - t0} ms"
+      (← IO.getStdout).flush
+  let badAx := st.axioms.toList.filter (!allowedAxioms.contains ·)
+  if !badAx.isEmpty then ok := false
+  lines := lines.push s!"axioms reached from all targets together: {st.axioms.toList}   {if badAx.isEmpty then "(standard only)" else s!"NON-STANDARD: {badAx}"}"
   if !st.missing.isEmpty then
     ok := false
     lines := lines.push s!"FAIL constants referenced but missing: {st.missing.toList.take 20}"
