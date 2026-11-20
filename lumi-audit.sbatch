@@ -10,13 +10,16 @@
 #SBATCH --output=/flash/project_462001825/rieman/logs/%x-%j.out
 set -uo pipefail
 B=$(realpath /flash/project_462001825/rieman)
-mkdir -p $B/verify
+OUT=${RH_VERIFY_OUT:-$B/verify}
+F=/flash/project_462001825/rieman   # conf.json may spell paths through this symlink
+mkdir -p $B/verify $OUT
 echo "start_utc=$(date -u +%FT%TZ) node=$(hostname)"
 cat $B/state/summary-build.json 2>/dev/null | head -c 600; echo
 singularity exec --containall --no-home --cleanenv --no-mount bind-paths --net --network none \
   --bind $B/elan:$B/elan:ro --bind $B/lean:$B/lean:ro --bind $B/build:$B/build:ro --bind $B/rhcheck:$B/rhcheck:ro \
-  --bind $B/conf.json:$B/conf.json:ro --bind $B/verify:$B/verify \
-  --env LANG=C.UTF-8 --env LD_PRELOAD=$B/rhcheck/rhshim.so --env RH_MAP_LIMIT=58000 $B/crowd.sif /usr/bin/time -v $B/rhcheck/verify/audit.sh $B Main 2>&1 | cut -c1-3000
+  --bind $B/elan:$F/elan:ro --bind $B/lean:$F/lean:ro --bind $B/build:$F/build:ro \
+  --bind $B/conf.json:$B/conf.json:ro --bind $B/verify:$B/verify --bind $OUT:$OUT --env RH_VERIFY_OUT=$OUT \
+  --env LANG=C.UTF-8 --env LD_PRELOAD=$B/rhcheck/rhshim.so --env RH_MIN_MAP=1048576 $B/crowd.sif $B/rhcheck/verify/audit.sh $B ${1:-Main} "${@:2}" 2>&1 | cut -c1-3000
 rc=${PIPESTATUS[0]}
 echo "end_utc=$(date -u +%FT%TZ) exit=$rc"
 exit $rc

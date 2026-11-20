@@ -9,8 +9,10 @@
  *
  * What this does.  It does not change what Lean loads, only where the bytes live:
  *   1. reserves one large anonymous region at startup (a single mapping, untouched pages cost nothing);
- *   2. refuses file mappings once RH_MAP_LIMIT (default 58000) of them exist, so that Lean takes its
- *      own read fallback while a few thousand mappings stay free for stacks, heaps, etc.;
+ *   2. refuses file mappings smaller than RH_MIN_MAP bytes (default 65536) and any file mapping once
+ *      RH_MAP_LIMIT (default 58000) of them exist, so that Lean takes its own read fallback for those.
+ *      Most of Mathlib's ~52,000 files are tiny (42,000 are under 4 KB, 16 MB in total), so reading the
+ *      small ones costs a few hundred MB per process and frees most of the mapping budget;
  *   3. serves malloc/calloc/realloc/memalign and anonymous mmap requests from the reserved region
  *      when (and only when) the normal allocator fails.
  * build:  gcc -O2 -fPIC -shared -o rhshim.so rhshim.c
@@ -41,6 +43,7 @@ static size_t arena_sz;
 static _Atomic size_t arena_off;
 static _Atomic long file_maps;
 static long map_limit = 58000;
+static size_t min_map = 65536;
 
 static void *sys_mmap(void *a, size_t l, int p, int f, int fd, off_t o) {
     return (void *)syscall(SYS_mmap, a, l, p, f, fd, o);
@@ -49,6 +52,8 @@ static void *sys_mmap(void *a, size_t l, int p, int f, int fd, off_t o) {
 __attribute__((constructor(101))) static void rh_init(void) {
     const char *s = getenv("RH_MAP_LIMIT");
     if (s && *s) map_limit = atol(s);
+    s = getenv("RH_MIN_MAP");
+    if (s && *s) min_map = (size_t)atol(s);
     size_t gib = 1024;
     s = getenv("RH_ARENA_GIB");
     if (s && *s) gib = (size_t)atol(s);
@@ -150,7 +155,11 @@ size_t malloc_usable_size(void *p) {
 /* ---- mmap family ---- */
 void *mmap(void *addr, size_t len, int prot, int flags, int fd, off_t off) {
     int file = !(flags & MAP_ANONYMOUS) && fd >= 0;
-    if (file && atomic_load(&file_maps) >= map_limit) { errno = ENOMEM; return MAP_FAILED; }
+    /* only Lean's import mappings use MAP_FIXED_NOREPLACE; shared libraries etc. are left alone */
+    if (file && (flags & MAP_FIXED_NOREPLACE) && (len < min_map || atomic_load(&file_maps) >= map_limit)) {
+        errno = ENOMEM;
+        return MAP_FAILED;
+    }
     void *p = sys_mmap(addr, len, prot, flags, fd, off);
     if (p != MAP_FAILED) {
         if (file) atomic_fetch_add(&file_maps, 1);

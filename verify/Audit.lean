@@ -75,6 +75,41 @@ unsafe def main (args : List String) : IO UInt32 := do
   lines := lines.push s!"root {root}: {env.header.moduleNames.size} modules loaded in {t1 - t0} ms"
   let mut st : Walk := {}
   for p in pairs do
+    if p == "@root" then
+      -- test mode: walk every constant declared in the root module itself
+      let some ri := env.header.moduleNames.findIdx? (· == root.toName) | return 2
+      let mut k := 0
+      for (n, _) in env.constants.map₁.toList do
+        if (env.getModuleIdxFor? n).map (·.toNat) == some ri then
+          st := walk env n st
+          k := k + 1
+      lines := lines.push s!"@root: walked {k} constants declared in {root}; axioms reached: {st.axioms.toList}"
+      continue
+    if p.startsWith "@each=" then
+      -- per-theorem footprint: an independent walk from each listed constant (in parallel), plus whether
+      -- the targets audited so far reach it.  Put this argument after the thm=Expected pairs.
+      let file := (p.splitOn "=")[1]!
+      let names := (← IO.FS.lines file).toList.filter (· != "") |>.map String.toName
+      let mainSeen := st.seen
+      let tasks := names.map fun n => Task.spawn fun _ =>
+        let w := walk env n {}
+        let mods : Std.HashSet Nat := w.seen.toList.foldl (init := {}) fun acc c =>
+          match env.getModuleIdxFor? c with
+          | some i => acc.insert i.toNat
+          | none => acc
+        (n, w.seen.size, mods, w.axioms.toList)
+      let mut rowsOut : Array String := #["name\tfound\treached_by_main\tconstants\tmodules\taxioms\tmodules_by_library"]
+      for t in tasks do
+        let (n, k, mods, ax) := t.get
+        let mut byRoot : Std.HashMap String Nat := {}
+        for i in mods.toList do
+          let r := ((toString env.header.moduleNames[i]!).splitOn ".").headD ""
+          byRoot := byRoot.insert r (byRoot.getD r 0 + 1)
+        let br := String.intercalate "," ((byRoot.toArray.qsort (fun x y => x.2 > y.2)).toList.map fun (r, c) => s!"{r}={c}")
+        rowsOut := rowsOut.push s!"{n}\t{env.contains n}\t{mainSeen.contains n}\t{k}\t{mods.size}\t{ax}\t{br}"
+      IO.FS.writeFile (System.FilePath.mk outDir / "per-theorem.tsv") (String.intercalate "\n" rowsOut.toList ++ "\n")
+      lines := lines.push s!"@each: wrote footprints of {names.length} constants to per-theorem.tsv"
+      continue
     let [thm, expected] := p.splitOn "="
       | IO.eprintln s!"bad pair {p}"; return 2
     let thmN := thm.toName

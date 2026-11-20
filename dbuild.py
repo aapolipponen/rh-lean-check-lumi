@@ -76,7 +76,10 @@ class Coord:
         self.done, self.failed, self.attempts = set(), {}, collections.Counter()
         self.weight = {}
         for m, cnt in self.closure.items():
-            w = 1 if cnt < 12000 else 2 if cnt < 20000 else 6 if cnt < 30000 else 24 if cnt < 45000 else 64 if cnt < 90000 else 112
+            # slots are sized for shallow modules (~1 GB each); a deep import closure costs Lean several GB
+            # measured on LUMI: ~1 GB while importing, growing to several GB; a 224-slot node has 224 GiB
+            w = (1 if cnt < 5000 else 2 if cnt < 9000 else 4 if cnt < 12000 else 8 if cnt < 30000
+                 else 12 if cnt < 45000 else 24 if cnt < 60000 else 112 if cnt < 90000 else 224)
             if w > 1 and m in graph:
                 self.weight[m] = w
         self.cpu_s = 0.0
@@ -179,6 +182,8 @@ class Coord:
         ro_extra = []
         if c.get('preload'):                 # rhshim.so: see rhshim.c (low vm.max_map_count workaround)
             env['LD_PRELOAD'] = c['preload']
+            # the very top of the tree cannot map even its large imports: read everything under 1 MB
+            env['RH_MIN_MAP'] = '1048576' if self.closure.get(m, 0) >= 60000 else '65536'
             ro_extra.append(os.path.dirname(c['preload']))
         return {'t': 'job', 'id': self.next_id, 'mod': m, 'argv': argv, 'moves': moves, 'files': files,
                 'env': env,
@@ -508,34 +513,37 @@ class Worker:
             pass
 
     def mem_guard(self):
-        """Kill the fattest job when the node is nearly out of memory, before the kernel/Slurm kills the step."""
+        """Kill the fattest jobs when the node or the Slurm step cgroup is nearly out of memory.
+        An OOM kill inside the step makes Slurm end the whole worker, so this has to act first."""
         page = os.sysconf('SC_PAGE_SIZE')
         while True:
-            time.sleep(2)
+            time.sleep(1)
             try:
                 mi = dict((l.split(':')[0], int(l.split()[1])) for l in open('/proc/meminfo'))
-                avail, total = mi['MemAvailable'], mi['MemTotal']
+                avail, total = mi['MemAvailable'] * 1024, mi['MemTotal'] * 1024
                 lim = self.cgroup_headroom()
-                if lim is not None:
-                    avail = min(avail, lim // 1024)
+                head = avail if lim is None else min(avail, lim)
             except Exception:                 # noqa: BLE001
                 continue
-            if avail > max(total * 0.04, 2 * 1024 * 1024) and (lim is None or lim > 2 << 30):
+            need = int(total * 0.10) - head   # keep 10 % (about 25 GB) free
+            if need <= 0:
                 continue
             with self.plock:
-                best, best_rss = None, 0
-                for jid, p in self.procs.items():
-                    rss = tree_rss(p.pid) * page
-                    if rss > best_rss:
-                        best, best_rss = jid, rss
-                if best is not None:
-                    self.oomed.add(best)
+                sizes = sorted(((tree_anon(p.pid), jid) for jid, p in self.procs.items() if jid not in self.oomed), reverse=True)
+                freed, killed = 0, []
+                for kb, jid in sizes[:16]:
+                    if freed >= need:
+                        break
+                    self.oomed.add(jid)
                     try:
-                        os.killpg(self.procs[best].pid, signal.SIGKILL)
+                        os.killpg(self.procs[jid].pid, signal.SIGKILL)
                     except OSError:
                         pass
-                    print(f'[work {self.host}] memory guard killed job {best} rss={best_rss >> 20}M avail={avail >> 10}M', flush=True)
-            time.sleep(3)
+                    freed += kb * 1024
+                    killed.append(jid)
+            if killed:
+                print(f'[work {self.host}] memory guard killed {len(killed)} jobs, ~{freed >> 30} GiB, headroom was {head >> 30} GiB', flush=True)
+                time.sleep(2)
 
     @staticmethod
     def cgroup_headroom():
@@ -614,6 +622,30 @@ def filter_output(text):
     if nwarn and keep:
         keep.append(f'({nwarn} warnings/infos dropped)')
     return '\n'.join(keep)
+
+
+def tree_anon(pid):
+    """Anonymous (private) memory in kB of a process group leader and its descendants."""
+    total, kids = 0, collections.defaultdict(list)
+    for d in os.listdir('/proc'):
+        if d.isdigit():
+            try:
+                f = open(f'/proc/{d}/stat').read().rsplit(')', 1)[1].split()
+                kids[int(f[1])].append(int(d))
+            except (OSError, IndexError, ValueError):
+                pass
+    st = [pid]
+    while st:
+        p = st.pop()
+        try:
+            for line in open(f'/proc/{p}/status'):
+                if line.startswith('RssAnon:'):
+                    total += int(line.split()[1])
+                    break
+        except OSError:
+            pass
+        st.extend(kids.get(p, []))
+    return total
 
 
 def tree_rss(pid):
