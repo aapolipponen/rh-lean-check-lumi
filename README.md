@@ -1,55 +1,60 @@
-# rhcheck: checking the `lean.tar.gz` GRH formalization fast
+# Independent verification of Alpöge's Lean formalization of RH / GRH, run on LUMI
 
-Source: https://alpo.ge/remark.pdf, archive parts `https://alpo.ge/lean.tar.gz.part01..14`
-(concatenated sha256 `9631b4f020199e580ba86178cb56c6e9b09f690c2369a80dc4334aa93f49c7fc`).
-175,187 Lean files, 1.03 GB, 17.4 M lines, Lean `v4.33.1`, Mathlib tag `v4.33.1`
-(`0df444a3`). Every file is in the import closure of `Main.lean`; import depth 203.
+On 20 November 2026 Levent Alpöge announced a Lean proof of the Riemann Hypothesis and of GRH for
+Dirichlet L-functions, found with Claude ([remark.pdf](https://alpo.ge/remark.pdf)). The proof is theirs.
+This repository records one independent check of the published archive: we compiled it, audited what the
+main theorems depend on, and re-checked every module in the Lean kernel.
 
-The archive is untrusted: Lean files run arbitrary code while they elaborate. Every Lean
-process here runs in a `bwrap` sandbox: no network, filesystem read-only, home and shared
-filesystems hidden, one private scratch dir.
+## Status: run in progress (updated 2026-11-20 19:25 UTC)
 
-## Stages
+No verdict yet. This table is filled in as each stage finishes; nothing here should be read as a result
+until the compile, the audit and the kernel replay have all passed.
 
-| stage | what | tool |
-|---|---|---|
-| 0 scan | import graph + static audit (`axiom`, `sorry`, `native_decide`, metaprogramming…) | `scan.py SRC OUT` |
-| 1 build | compile every module, critical-path first, across nodes | `dbuild.py … --mode build` |
-| 2 audit | statements and axioms of the five `Main` theorems, from the compiled environment, by a script that imports only `Lean` | `verify/audit.sh BASE` |
-| 3 replay | re-check every declaration of every module (project + Mathlib & deps) in the Lean kernel | `dbuild.py … --mode replay` |
+| Check | Result |
+|---|---|
+| Archive | 14 parts from alpo.ge, concatenated sha256 `9631b4f020199e580ba86178cb56c6e9b09f690c2369a80dc4334aa93f49c7fc` |
+| Static scan of all 175,187 files | done: no `axiom`, `sorry`, `admit` or `native_decide` in the source ([results/static-scan.txt](results/static-scan.txt)) |
+| Compile all 175,187 modules (Lean v4.33.1, Mathlib tag `v4.33.1`) | **running**: 121,830 compiled, 0 failures, after 25 min on 8 LUMI-C nodes |
+| `riemannHypothesis : RiemannHypothesis` is a theorem whose statement is Mathlib's own definition | queued (runs after the compile) |
+| Axioms of the five theorems in `Main.lean` | queued |
+| Kernel replay (`leanchecker`) of every project module and every Mathlib/dependency module | queued |
+| Second, independent kernel (nanoda / Comparator) | not run |
 
-Stage 3 does not trust stage 1: a scheduler or sandbox mistake cannot produce a false pass,
-because every olean is replayed through the kernel against its imports.
-Not done yet: an independent kernel (lean4export + nanoda / `comparator`).
+## What this does and does not establish
 
-## Layout of a BASE directory
+A full pass would establish that the published Lean files compile with the pinned toolchain, that the five theorems in
+`Main.lean` have the stated types, that they rest on no axioms beyond Lean's standard three, and that the
+Lean kernel accepts every declaration when replayed.
 
-    BASE/lean/            extracted archive (+ .lake/packages after `lake exe cache get`)
-    BASE/out/graph.json   from scan.py
-    BASE/conf.json        from mkconf.sh BASE
-    BASE/build/lib/       oleans we produce
-    BASE/state/           results-build.jsonl, results-replay.jsonl, summary-*.json
-    BASE/verify/          audit-result.txt, used-modules.txt
+It would not establish that anyone understands the argument, and it trusts: the Lean 4.33.1 kernel and
+toolchain binaries, Mathlib's definitions (in particular `RiemannHypothesis`, `riemannZeta` and
+`DirichletCharacter.LFunction`), and the four definitions in `src/Statements.lean`, which a human should
+read. Mathlib's compiled files came from the official build cache and were replayed in the kernel here.
 
-chili: `BASE=/bulk/shared/rieman`. LUMI: `BASE=/flash/project_462001825/rieman`
-(scratch is near its file quota; flash has room), `ELAN_HOME=$BASE/elan`.
+## Method
 
-## Running
+The archive is untrusted code: Lean files can run arbitrary programs while they compile. Every Lean process
+ran in a Singularity container with no network, a read-only view of its inputs and one private scratch
+directory.
 
-    python3 rhcheck/scan.py lean/src out                # 30 s
-    rhcheck/mkconf.sh . > conf.json
-    # one node (chili):  SLOTS=26 rhcheck/run-local.sh . [--mode replay] [--roots A,B]
-    # LUMI:              sbatch -N 8 -t 02:00:00 rhcheck/lumi-run.sbatch            (build)
-    #                    sbatch -N 8 -t 01:00:00 rhcheck/lumi-run.sbatch --mode replay
-    rhcheck/verify/audit.sh .                           # after the build
+1. **Scan** (`scan.py`): import graph of all 175,187 files and a text audit. No `axiom`, `sorry`, `admit`
+   or `native_decide` in the source. Import depth 203; every file is reachable from `Main`.
+2. **Build** (`dbuild.py`): a coordinator hands modules to one worker per node, longest dependency chain
+   first. Each module is compiled with the same `lean` invocation Lake uses (taken from `lake build -v`),
+   including the lakefile's options. Outputs are written to a temporary name and renamed.
+3. **Audit** (`verify/Audit.lean`): a program that imports only `Lean`, loads the compiled environment
+   without running any project code, and walks every constant the five theorems depend on.
+4. **Replay** (`dbuild.py --mode replay`): `leanchecker` on each module. A scheduler or sandbox mistake in
+   step 2 cannot produce a false pass, because every compiled file is re-checked against its imports.
 
-Resubmitting resumes: modules with a successful result line and an existing olean are skipped.
-A failed module is retried once, then reported; its dependents stay unbuilt and the run exits 1
-with the list in `state/summary-build.json`. Out-of-memory jobs are retried alone with more slots.
+Everything needed to repeat this is in this repository; see [RUNBOOK.md](RUNBOOK.md). Raw outputs
+(per-module results, olean hashes, audit output, replay results, Slurm logs) are added to `results/` as
+each stage finishes.
 
-## How the build command was derived
+## Acknowledgements
 
-`lake build -v` on one module shows lake's own call: `lean --tstack=400000 FILE -o … --setup
-setup.json --json` with the lakefile's `leanOptions` in the setup file. `dbuild.py` issues the
-same call (without `-i`/`-c`), including the `GroundTheoryFields` library's extra
-`synthInstance.maxHeartbeats`.
+Computations were run on the LUMI supercomputer, owned by the EuroHPC Joint Undertaking and hosted by
+CSC – IT Center for Science (Finland) and the LUMI consortium. We thank CSC for the computing resources and
+for their quick support.
+
+Run by Aapo Lipponen with Claude (Anthropic) writing and operating the checker.
