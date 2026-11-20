@@ -57,6 +57,16 @@ Modules that embed no path, `Main` and `Statements` among them, are byte-identic
 **Wall time is the import chain, not cores.** The build is a few hundred CPU-hours in total; the import
 graph is 203 levels deep, and the last 68 levels hold the 10,000 expensive modules.
 
+## Documentation of the proof's structure
+
+[`docs/`](docs/README.md) is a reader's guide to the archive: what is proved and how everything reduces to one
+statement, a top-down map of the argument, where the exponent 1/2 comes from, how the Galois
+representations and the cohomology bound are obtained, a table of 105 named classical theorems inside the
+archive with a verdict on whether each formal statement matches its name, the anatomy of the archive, and a
+prioritised list of what nobody has read. It was assembled from read-only reviews of the source by AI
+agents ([`docs/reports/`](docs/reports/)); every claim carries a marker saying how much was actually read.
+It is not a referee report and does not vouch for the mathematics.
+
 ## What this does and does not establish
 
 A full pass would establish that the published Lean files compile with the pinned toolchain, that the five theorems in
