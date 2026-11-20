@@ -5,23 +5,33 @@ Dirichlet L-functions, found with Claude ([remark.pdf](https://alpo.ge/remark.pd
 This repository records one independent check of the published archive: we compile it in a sandbox and audit, from the
 compiled environment, what the main theorems state and depend on.
 
-## Status: compile in its last stretch (updated 2026-11-20 20:50 UTC)
+## Status: compile complete (updated 2026-11-20 22:30 UTC)
 
-This is one independent confirmation among several. Andrew Sutherland (MIT) reported a full compile,
-axiom audit, per-module kernel replay and a nanoda pass hours before this run got this far; see the
+**All 175,187 modules compile, with no Lean error.** `Main.lean` finished at 22:21 UTC on 20 November 2026.
+The audit of statements, axioms and dependencies is running; this section will be updated when it ends.
+
+This is one independent confirmation among several. Andrew Sutherland (MIT) reported a full compile, an
+axiom audit, a per-module kernel replay and a pass by the independent nanoda kernel hours earlier; see the
 "Discussion: Alpöge Proves the Riemann Hypothesis" thread on the Lean Zulip and
-https://math.mit.edu/~drew/grh/ . Nothing below should be read as a verdict of ours until the compile
-and the audit have both finished.
+https://math.mit.edu/~drew/grh/ .
 
 | Check | Result |
 |---|---|
 | Archive | 14 parts from alpo.ge, concatenated sha256 `9631b4f020199e580ba86178cb56c6e9b09f690c2369a80dc4334aa93f49c7fc` |
-| Static scan of all 175,187 files | done: no `axiom`, `sorry`, `admit` or `native_decide` in the source ([results/static-scan.txt](results/static-scan.txt)) |
-| Compile all 175,187 modules (Lean v4.33.1, Mathlib tag `v4.33.1`), each `lean` process sandboxed | **running**: 171,000+ compiled (97.6%), no Lean errors. The first 94% took 48 min on 8 LUMI-C nodes; the deepest 6% is slow for the reasons below. |
-| Statement and axioms of the five theorems in `Main.lean`, from the compiled environment | queued (runs after the compile) |
-| Which modules and declarations the five theorems actually depend on | queued (same run) |
-| Kernel replay (`leanchecker`) of every module | **not run by us.** Already done by Sutherland; we chose not to spend allocation repeating it. |
-| Second, independent kernel (nanoda / Comparator) | not run by us; nanoda pass reported by Sutherland |
+| Static scan of all 175,187 files | no `axiom`, `sorry`, `admit` or `native_decide` in the source ([results/static-scan.txt](results/static-scan.txt)) |
+| Compile all 175,187 modules (Lean v4.33.1, Mathlib tag `v4.33.1`), each `lean` process in a no-network sandbox | **done: 175,187 of 175,187, 0 failures** ([results/build-summary.json](results/build-summary.json), per-module record in [results/build-results.tsv.gz](results/build-results.tsv.gz)) |
+| Cross-check against another build | `Main.olean` sha256 `9146dfb4148e24d2252e04c50742f3e49dd126dfcc5006d10bf5f873ddf796ad` and `Statements.olean` sha256 `f8e0aed3c2d69390b6dd3bb24e13aa25e043a02ca42f021e3f6e4ec8b57fd6b1`: **identical to the hashes Andrew Sutherland published** for his build |
+| Statement and axioms of the five theorems in `Main.lean`, from the compiled environment | running |
+| Which modules and declarations the five theorems actually depend on | running |
+| Kernel replay (`leanchecker`) of every module | **not run by us.** Done by Sutherland; we chose not to spend allocation repeating it. |
+| Second, independent kernel | not run by us. nanoda pass reported by Sutherland; con-leche (verified kernel) pass reported by Szymon Teżewski on the Lean Zulip |
+
+How the build went: the first 94% (164,776 modules) took 48 minutes on 8 LUMI-C nodes. The remaining 6% are
+the modules deep in the import graph. They first failed on a machine limit and then on memory, for the reasons
+in the notes below, and took several restarts and about three more hours of wall time, most of it spent
+finding the right settings. 718 compile attempts were killed or failed for those infrastructure reasons and
+were retried; no attempt failed with a Lean error. In total the night used about 3,500 core-hours, of which
+the compile itself needed roughly 900.
 
 ### Notes for anyone else building this
 
@@ -41,7 +51,8 @@ kills and retries the largest jobs before the node does.
 
 **Olean hashes and paths.** Some oleans embed the absolute path of their source file. The same module
 compiled under two spellings of one directory gave different bytes; with Lake's spelling our output was
-byte-identical to Lake's. Hashes are comparable only between builds at the same absolute path.
+byte-identical to Lake's. Such modules are comparable only between builds at the same absolute path.
+Modules that embed no path, `Main` and `Statements` among them, are byte-identical across machines.
 
 **Wall time is the import chain, not cores.** The build is a few hundred CPU-hours in total; the import
 graph is 203 levels deep, and the last 68 levels hold the 10,000 expensive modules.
