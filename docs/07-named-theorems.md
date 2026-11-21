@@ -2,6 +2,8 @@
 
 The archive states about 155 classical theorems as `Prop`s in the namespace `GlobalTheory.Published` and proves each of them inside the archive; four AI review batches have read 105 named statements to ask only whether each says what its name claims. This page merges their verdicts into one table, lists the named statements nobody has reviewed yet, and collects the notes on `True` placeholders and misnamed statements.
 
+> **Caution on the verdicts (2026-11-21).** The verdicts below are AI readings and have not been checked against the sources. When two "faithful" rows were checked properly, against a quoted source and with every project definition read, one of them moved: Linnik's theorem is a close match, not an exact one (the archive bounds the least prime in the residue class, the classical statement the least prime in the progression past its first term). Read "faithful" as "probably, unverified". The two checked statements are in [`literature-links/`](../literature-links/).
+
 > **Measured (2026-11-21).** Every row of the tables below was looked up in the compiled dependency graph of the five main theorems. Of the reviewed rows, 102 resolve to exactly one constant (by full name, or by a name suffix unique in the graph); one (`SiegelWeilUnitaryConvergent`) matches two constants and one (`SerreTate`) carries only a short label that could not be resolved. All 83 rows of the "not yet reviewed" tables resolve. Every resolved constant, 183 distinct declarations in all, is one the proof of RH depends on. None of the named statements is decoration. (The graph is the `dependency-graph-1` release.)
 
 ## How to read this page
@@ -64,7 +66,7 @@ Sorted by area, then by name. "R1 #11" means row 11 of the R1 summary table.
 | Analytic number theory | `DeligneRibet` (+ `SiegelKlingen`) | special case | ℓ-integrality of c-smoothed partial zeta values at 1−k on narrow ray classes mod ℓ^n (no tame part of the conductor) | R1 #12 |
 | Analytic number theory | `HeckeLEntireAndNonzeroAtOne` | faithful | Hecke: L(s,χ) is entire for unitary χ ≠ \|·\|^{it}, and L(1,χ) ≠ 0 for χ ≠ 1 | R3 #27 |
 | Analytic number theory | `HeckeTateFunctionalEquation` | special case | CM fields, unitary algebraic Hecke characters with nonzero ∞-type; Λ entire with explicit ε (Gauss sums); `ExpAt` not traced | R1 #3 |
-| Analytic number theory | `Linnik` | faithful | ∃ C,L>0 with least prime ≡ a mod q ≤ C q^L for all coprime a, q ≥ 1 | R1 #1 |
+| Analytic number theory | `Linnik` | close match (checked; was "faithful") | ∃ C,L>0 with least prime ≡ a mod q ≤ C q^L for all coprime a, q ≥ 1 | R1 #1 |
 | Analytic number theory | `PartialZetaFunctionalEquation` | special case | Hecke FE for partial zeta of wide ideal classes, totally real fields only; `IsPartialZeta` requires analytic continuation, so not vacuous | R1 #2 |
 | Class field theory and CM | `ChebotarevDegreeOne` | weakened (qualitative) | Each g ∈ Gal(L/F) is the Frobenius at some unramified degree-1 prime outside any finite S. Infinitude, no density | R3 #23 |
 | Class field theory and CM | `ComplexMultiplicationJSt` | faithful | H = K(j(𝔞)) is the Hilbert class field, Artin isomorphism Cl(K) ≅ Gal(H/K), and art(𝔟)·j(𝔞) = j(𝔟⁻¹𝔞) | R4 #22 |

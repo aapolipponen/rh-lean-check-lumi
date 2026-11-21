@@ -1,0 +1,29 @@
+{
+  "subject": [
+    {
+      "type": "html",
+      "uri": "https://en.wikipedia.org/wiki/Lyndon_word",
+      "version": "1374619525",
+      "title": "Lyndon word",
+      "location": {
+        "quote": {
+          "exact": "Radford's theorem now states that the Lyndon words are algebraically independent elements of this shuffle algebra, and generate it"
+        }
+      }
+    }
+  ],
+  "object": [
+    {
+      "type": "lean",
+      "uri": "https://github.com/leanprover-community/riemann-hypothesis",
+      "version": "e50d09817ad81469f737e8f637561e6ccf86c670",
+      "location": {
+        "declaration": "GlobalTheory.Published.RadfordShufflePolynomial",
+        "module": "Development.AbelianVarietyTheory.PublishedTheorems.TwistedTraceFormula.RadfordShufflePolynomialHolds"
+      }
+    }
+  ],
+  "relation": "exactMatch",
+  "kind": "theorem",
+  "note": "Lean: for every field K of characteristic 0 and every linearly ordered type A, the algebra map from the polynomial ring on Lyndon words to the shuffle algebra, sending each variable to its word, is bijective (injective = algebraically independent, surjective = generate). The definitions are the archive's own and were read: ShuffleAlgebra K A is the free K-module on lists over A with the product given on words by the usual recursive shuffle (as a multiset of interleavings), and IsLyndon w says w is nonempty and lexicographically strictly smaller than each of its proper nonempty suffixes. The alphabet may be infinite. Proved in the same file as radfordShufflePolynomial_holds; used by the proof of riemannHypothesis (checked in the compiled dependency graph)."
+}

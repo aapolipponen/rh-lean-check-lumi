@@ -1,0 +1,29 @@
+{
+  "subject": [
+    {
+      "type": "html",
+      "uri": "https://en.wikipedia.org/wiki/Linnik's_theorem",
+      "version": "1381647073",
+      "title": "Linnik's theorem",
+      "location": {
+        "quote": {
+          "exact": "It asserts that there exist positive c and L such that, if we denote p(a,d) the least prime in the arithmetic progression"
+        }
+      }
+    }
+  ],
+  "object": [
+    {
+      "type": "lean",
+      "uri": "https://github.com/leanprover-community/riemann-hypothesis",
+      "version": "e50d09817ad81469f737e8f637561e6ccf86c670",
+      "location": {
+        "declaration": "GlobalTheory.Published.Linnik",
+        "module": "Development.AbelianVarietyTheory.PublishedTheorems.PublishedFoundations.PrimesInProgressionNonempty"
+      }
+    }
+  ],
+  "relation": "closeMatch",
+  "kind": "theorem",
+  "note": "Source: for coprime a, d with 1 <= a <= d-1, the least prime p(a,d) among a+nd with n a positive integer satisfies p(a,d) < c d^L. Lean: there are real C, L > 0 with leastPrimeMod a q <= C q^L for all coprime a, q >= 1, where leastPrimeMod a q is the infimum of all primes congruent to a mod q. Differences a reader should know: (1) the Lean quantity is the least prime in the residue class and may equal a itself, while the source's progression starts at a+d, so the Lean quantity is at most the source's and the Lean statement follows from the source but not conversely when a is prime; (2) the Lean statement also covers q = 1 and a >= q, which reduce to the source's range; (3) non-strict instead of strict inequality, which is immaterial. The declaration is a Prop; its proof in the archive is UpperTheory.Lit.linnik (not read for this annotation). Both the statement and that proof are constants the proof of riemannHypothesis depends on (checked in the compiled dependency graph)."
+}
