@@ -2,6 +2,8 @@
 
 The archive states about 155 classical theorems as `Prop`s in the namespace `GlobalTheory.Published` and proves each of them inside the archive; four AI review batches have read 105 named statements to ask only whether each says what its name claims. This page merges their verdicts into one table, lists the named statements nobody has reviewed yet, and collects the notes on `True` placeholders and misnamed statements.
 
+> **Measured (2026-11-21).** Every row of the tables below was looked up in the compiled dependency graph of the five main theorems: all 186 rows that name a Lean declaration resolve to a constant the proof of RH depends on. None of the reviewed named statements is decoration. (Lookup by the first Lean name in the row, matching the full name or its last components; the graph is the `dependency-graph-1` release.)
+
 ## How to read this page
 
 A *verdict* answers one question: does the Lean statement say what its name claims? It says nothing about whether the proof is correct, and none of these statements is an assumption: each is proved in the archive (statements-review-3-geometry.md, introduction; skeleton.md §3).
