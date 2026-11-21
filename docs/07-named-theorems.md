@@ -2,7 +2,7 @@
 
 The archive states about 155 classical theorems as `Prop`s in the namespace `GlobalTheory.Published` and proves each of them inside the archive; four AI review batches have read 105 named statements to ask only whether each says what its name claims. This page merges their verdicts into one table, lists the named statements nobody has reviewed yet, and collects the notes on `True` placeholders and misnamed statements.
 
-> **Measured (2026-11-21).** Every row of the tables below was looked up in the compiled dependency graph of the five main theorems: all 186 rows that name a Lean declaration resolve to a constant the proof of RH depends on. None of the reviewed named statements is decoration. (Lookup by the first Lean name in the row, matching the full name or its last components; the graph is the `dependency-graph-1` release.)
+> **Measured (2026-11-21).** Every row of the tables below was looked up in the compiled dependency graph of the five main theorems. Of the reviewed rows, 102 resolve to exactly one constant (by full name, or by a name suffix unique in the graph); one (`SiegelWeilUnitaryConvergent`) matches two constants and one (`SerreTate`) carries only a short label that could not be resolved. All 83 rows of the "not yet reviewed" tables resolve. Every resolved constant, 183 distinct declarations in all, is one the proof of RH depends on. None of the named statements is decoration. (The graph is the `dependency-graph-1` release.)
 
 ## How to read this page
 
