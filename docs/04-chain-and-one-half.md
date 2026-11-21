@@ -177,7 +177,13 @@ There is no induction or bootstrap on m, the level or the exponent in `core_gm`,
 
 `GlobalTheory.Mem.Num.mAt s := evenCeil (Real.sqrt (s.x * s.delta1))` with delta1 = x^{−ε/8}, so m ≈ x^{1/2−ε/16} (`Development/AbelianVarietyTheory/Definitions/AutomorphicMembership/EvenCeil.lean`; `Formalism/LocalRingCardinality/DataParams₂.lean:45`). The same file sets k ≈ x^{9/2+10ε} and n = 2^{e(x)}. [statement read] (theta-chain.md Q3)
 
-**Open.** That module has 0 of 38 declarations statically reachable (rule A). Other instantiations (m = 2 in `HostFam.Rt`; m = 2^α in `SmallHostRootDiscriminantLe`) are also unreachable. Which definition instantiates m on the compiled path is not established. `RestSize` forces x^{1/2−ε} ≤ m ≤ x^{1/2+ε/2} whatever the definition (core-gm.md Q1). (theta-chain.md Q3)
+**Settled by the compiled dependency graph (2026-11-21).** `mAt` is *not* used by the proof: no constant of that module, and no `evenCeil`, `HostFam.Rt` or `SmallHostRootDiscriminantLe` constant, is among the 1,478,243 constants the five theorems depend on. The chain length on the compiled path comes from `GlobalTheory.EX.RankVal` (`Development/AbelianVarietyTheory/Definitions/GlobalTwisting/PairRowIffQdRows.lean:28`), a predicate on the rank data that requires
+
+- √(x·δ1) ≤ m ≤ 2·√(x·δ1),
+- x^(2+8ε) ≤ n ≤ 2·x^(2+8ε),
+- x^(9/2+10ε) ≤ k ≤ 2·x^(9/2+10ε).
+
+So m ≈ √x is imposed as a constraint on the ranks, not computed by a function, and it is consistent with what `RestSize` forces (core-gm.md Q1). Ishaan Dixit's independent trace reports the same object. [definition read; use measured]
 
 The chain objects themselves: `IteratedLiftChains` (`Development/AbelianVarietyTheory/BlockTheory/TwistedDiscreteSeries/IteratedLiftChains.lean`) defines iterated theta integrals `IsIterLift`, with 1 of 20 declarations reachable; `Formalism.BasicNotions.Ranks` has `rankY j = r + j·t`, matching π ↦ π ⊞ μ_j[t]. [statement read] (theta-chain.md Q3)
 

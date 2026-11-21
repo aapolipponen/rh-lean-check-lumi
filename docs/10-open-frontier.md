@@ -109,7 +109,7 @@ Items that the reports marked as decisive and that were read since the first fro
 
 ## Open questions
 
-1. **Which chain-length definition is used.** `mAt := evenCeil (sqrt (x·x^{−ε/8}))` lives in a module with 0 of 38 statically reachable declarations; other instantiations (m = 2, m = 2^α) are also unreachable. `RestSize` forces x^{1/2−ε} ≤ m ≤ x^{1/2+ε/2} whatever the definition, but where m is instantiated on the compiled path is not known. (theta-chain.md Q3; core-gm.md Q1)
+1. **Which chain-length definition is used.** *Settled.* The compiled graph shows `mAt` and the m = 2, m = 2^α instantiations are unused; m is constrained by `GlobalTheory.EX.RankVal` to lie in [√(x·δ1), 2√(x·δ1)] (page [04](04-chain-and-one-half.md)).
 2. **Does the project's home-made cohomology agree with the standard one?** Three statements use a "categorical" crystalline / de Rham H¹ over nilpotent PD thickenings (R3 §2). The Galois representations use the archive's own ℓ-adic étale cohomology on Mathlib's big étale site, with proper base change proved in the archive, and Hodge cohomology defined as algebraic coherent cohomology (frontier-c-galois.md Q1; frontier-g-deep-inputs.md §I.2). Neither identification with the standard theory has been checked.
 3. **Are the actual theta-lift kernels of the p-adic form `Conclusion1` needs?** `Conclusion1` is proved from a local theorem about kernels exp(−Σβ)·U; the global-to-local bridge `first_kernel_law_global_small` is the unread step. (frontier-f-divisibility.md Task 5)
 4. **How strong is the modularity input?** "All type-I points are automorphic" is derived via patching (`PfromAut`) stated for all n and arbitrary residual pseudo-representations, more generally than the published residually reducible modularity theorems. Whether the `Nice` / `thick` / `stable` predicates encode the needed residual hypotheses is open. (frontier-g-deep-inputs.md §II.4)
@@ -119,9 +119,10 @@ Items that the reports marked as decisive and that were read since the first fro
 8. **Does anything downstream need more than `IsRecT`, or `away.tame0`?** The consumers read use only the abelian case; this was not an exhaustive search. (vacuity-check.md Q4, Q5)
 9. **Is `DualAbelianScheme` over an arbitrary base beyond the literature?** The standard references give an algebraic space in general and a scheme under extra hypotheses. (statements-review.md row 13)
 10. **Hidden `True` placeholders.** The regex search misses `True` on the next line, `True`-typed fields and `fun _ => True` predicates; no second search was run. (statements-review-4.md §3)
-11. **Exact dependency set.** Static reachability is an over-approximation; the compiled-term audit of what the five theorems actually use is pending in the inputs. (static-reachability.md; rhcheck/README.md)
+11. **Exact dependency set.** *Settled.* The five theorems depend on 1,478,243 constants in 146,440 of the 175,187 project modules; the graph is published (rhcheck release `dependency-graph-1`) and agrees to the constant with James Shore's independent dataset (https://github.com/james-shore/rh-proof-dependencies). The static figures on page [08](08-archive-anatomy.md) undercount.
 12. **Sign and normalization conventions** (arithmetic versus geometric Artin map, Gaussian normalization, `matRep` duality, `bcParam`) were not checked. (R1 #7; R2 §3; R4 §4)
-13. **con-leche.** Public reports disagree on whether it accepted or declined the export. (web-briefing.md §A)
+13. **con-leche.** *Settled.* The current version accepts the export, including in its verified compare mode; the earlier decline came from an outdated bundled version.
+14. **Kato vanishing without an L-value hypothesis (`KatoTwoW`, `es_vanish`).** *Answered on the Lean Zulip by David Loeffler (2026-11-21):* Kato's theorem needs the critical L-value to be nonzero, and here the point is s = 1 in the analytic normalisation, to the right of the centre, where it cannot vanish; so no hypothesis is needed. `KatoTwoW` is on the compiled path. Not checked by us against the Lean statement.
 
 ## Sources
 

@@ -144,7 +144,7 @@ It is an **over-approximation by source text**:
 
 It can also **miss** uses through typeclass instances (only partly modelled by rule B), notation, macros, `open … in`, `attribute [instance]`, generalized field notation (`h.foo`), and declarations whose header the line-based parser misread.
 
-So "about 59% of declarations are reachable" is an estimate of the dependency cone, not the exact set. The exact set requires walking the compiled proof terms, which the rhcheck audit stage does from the compiled environment (rhcheck/README.md, Method step 3); its results are not among the inputs to these documents. "Unreachable" is the stronger signal: a module with no reachable declaration (such as the `mAt` module) is very likely not used, subject to the missed-use caveats above.
+So "about 59% of declarations are reachable" is an estimate of the dependency cone, not the exact set. The exact set requires walking the compiled proof terms, which the rhcheck audit stage does from the compiled environment (rhcheck/README.md, Method step 3); its results arrived after this page was written: the exact figure is 146,440 of 175,187 project modules (83.6%), well above the static estimate, so the static tracer misses many real uses. Treat every "unreachable" flag on this page as a hint only; several were wrong (the determinant inequality and the twist chain are used), though the `mAt` one was right. "Unreachable" is the stronger signal: a module with no reachable declaration (such as the `mAt` module) is very likely not used, subject to the missed-use caveats above.
 
 ## Sources
 
