@@ -5,15 +5,20 @@ Dirichlet L-functions, found with Claude ([remark.pdf](https://alpo.ge/remark.pd
 This repository records one independent check of the published archive: we compile it in a sandbox and audit, from the
 compiled environment, what the main theorems state and depend on.
 
-## Status: compile complete (updated 2026-11-20 22:30 UTC)
+## Status: compile and dependency audit complete (updated 2026-11-21 12:40 UTC)
 
-**All 175,187 modules compile, with no Lean error.** `Main.lean` finished at 22:21 UTC on 20 November 2026.
-The audit of statements, axioms and dependencies is running; this section will be updated when it ends.
+**All 175,187 modules compile, with no Lean error**, and a walk of the compiled proof terms finds that the
+five theorems of `Main.lean` depend on 1,478,243 constants and on no axiom other than `propext`,
+`Classical.choice` and `Quot.sound`.
 
-This is one independent confirmation among several. Andrew Sutherland (MIT) reported a full compile, an
-axiom audit, a per-module kernel replay and a pass by the independent nanoda kernel hours earlier; see the
-"Discussion: Alpöge Proves the Riemann Hypothesis" thread on the Lean Zulip and
-https://math.mit.edu/~drew/grh/ .
+This is one independent confirmation among many. Andrew Sutherland (MIT) reported the first full compile;
+since then nanoda, con-leche (verified), con-ron, lean4lean and several other kernels have accepted the
+proof (https://math.mit.edu/~drew/grh/ and the "Discussion: Alpöge Proves the Riemann Hypothesis" thread on
+the Lean Zulip). The community copy of the source, with a build cache, is
+https://github.com/leanprover-community/riemann-hypothesis . Exact used/unused counts from the kernel terms
+were published independently by James Shore (https://github.com/james-shore/rh-proof-dependencies); ours
+agree with his (same 5,081 Mathlib modules; 28,750 unused project modules here against 28,897 there, the
+difference being how a module with only auxiliary constants is counted).
 
 | Check | Result |
 |---|---|
@@ -21,16 +26,16 @@ https://math.mit.edu/~drew/grh/ .
 | Static scan of all 175,187 files | no `axiom`, `sorry`, `admit` or `native_decide` in the source ([results/static-scan.txt](results/static-scan.txt)) |
 | Compile all 175,187 modules (Lean v4.33.1, Mathlib tag `v4.33.1`), each `lean` process in a no-network sandbox | **done: 175,187 of 175,187, 0 failures** ([results/build-summary.json](results/build-summary.json), per-module record in [results/build-results.tsv.gz](results/build-results.tsv.gz)) |
 | Cross-check against another build | `Main.olean` sha256 `9146dfb4148e24d2252e04c50742f3e49dd126dfcc5006d10bf5f873ddf796ad` and `Statements.olean` sha256 `f8e0aed3c2d69390b6dd3bb24e13aa25e043a02ca42f021e3f6e4ec8b57fd6b1`: **identical to the hashes Andrew Sutherland published** for his build |
-| Statement and axioms of the five theorems in `Main.lean`, from the compiled environment | running |
-| Which modules and declarations the five theorems actually depend on | running |
-| Kernel replay (`leanchecker`) of every module | **not run by us.** Done by Sutherland; we chose not to spend allocation repeating it. |
-| Second, independent kernel | not run by us. nanoda pass reported by Sutherland; con-leche (verified kernel) pass reported by Szymon Teżewski on the Lean Zulip |
+| Axioms of the five theorems in `Main.lean`, from the compiled environment | **`propext`, `Classical.choice`, `Quot.sound` only**; 1,478,243 constants reached, none missing |
+| Which modules and declarations the five theorems depend on | **146,437 of 175,187 project modules (83.6%)**; per-declaration table in [results/per-declaration-dependencies.tsv](results/per-declaration-dependencies.tsv) |
+| Kernel replay (`leanchecker`) of every module | **not run by us** (started and cancelled after 6 minutes: others had done it). |
+| Second, independent kernel | not run by us. Accepted by nanoda, con-leche, con-agua, con-ron, lean4lean, Pestka, nanoclo, tenet and Gruszka, per reports on the Lean Zulip |
 
 How the build went: the first 94% (164,776 modules) took 48 minutes on 8 LUMI-C nodes. The remaining 6% are
 the modules deep in the import graph. They first failed on a machine limit and then on memory, for the reasons
 in the notes below, and took several restarts and about three more hours of wall time, most of it spent
 finding the right settings. 718 compile attempts were killed or failed for those infrastructure reasons and
-were retried; no attempt failed with a Lean error. In total the night used about 3,500 core-hours, of which
+were retried; no attempt failed with a Lean error. In total the build night used about 3,500 core-hours, of which
 the compile itself needed roughly 900.
 
 ### Notes for anyone else building this

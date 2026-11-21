@@ -13,4 +13,4 @@ PAIRS=("$@")
   LFunction_ne_zero_of_half_lt_re=DirichletLNonvanishingRightOfHalf LFunction_eq_zero_re=DirichletLZerosOnLine \
   LFunction_eq_zero_re_of_isPrimitive=PrimitiveDirichletLZerosOnLine)
 cd "$OUT"
-PATH="$LEANBIN:$PATH" LEAN_PATH="$LP" "$LEANBIN/lean" --run "$HERE/Audit.lean" "$OUT" "$ROOT" "${PAIRS[@]}"
+PATH="$LEANBIN:$PATH" LEAN_PATH="$LP" "$LEANBIN/lean" --run "$HERE/${RH_AUDIT_SCRIPT:-Audit.lean}" "$OUT" "$ROOT" "${PAIRS[@]}"
