@@ -75,6 +75,21 @@ environment and follows every constant in types and values):
   `UpperTheory.LiteratureTheorems.*`, and the main internal steps): every one depends on `propext`,
   `Classical.choice` and `Quot.sound` only, and all 243 literature theorems are reached by the proof of RH.
 
+**What the statement depends on.** Following only types and definitions (not proofs) from the statement of
+`riemannHypothesis` reaches 4,981 constants: 4,183 in Mathlib, 792 in Lean core, 6 in Batteries and **none
+in the project**. The other four theorems each add exactly two project constants, their own statement
+definitions in `Statements.lean`. Knowing what was proved requires reading nothing the archive wrote.
+
+**Shape.** The five theorems together depend on 1,478,243 constants joined by 116 million edges: 1,246,109
+theorems and 214,238 definitions; 1,265,279 of the constants are the project's, 203,036 Mathlib's. The
+longest dependency chain is 462 constants. 473,251 project theorems (44%) use no other project theorem.
+The most referenced project constants are bundled-data structures (`Formalism.BasicNotions.D7`, used by
+156,891 constants; the `Host` family, about 120,000 each). Usage by directory is in
+[`results/usage-by-directory.tsv`](results/usage-by-directory.tsv), all figures in
+[`results/graph-stats.json`](results/graph-stats.json), and the graph itself, with type and value
+dependencies separated, in the
+[dependency-graph-1 release](https://github.com/aapolipponen/rh-lean-check-lumi/releases/tag/dependency-graph-1).
+
 Per-declaration counts are in [`results/per-declaration-dependencies.tsv`](results/per-declaration-dependencies.tsv).
 This is a dependency count; it does not say which parts are new mathematics.
 
