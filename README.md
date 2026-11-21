@@ -17,8 +17,13 @@ proof (https://math.mit.edu/~drew/grh/ and the "Discussion: Alpöge Proves the R
 the Lean Zulip). The community copy of the source, with a build cache, is
 https://github.com/leanprover-community/riemann-hypothesis . Exact used/unused counts from the kernel terms
 were published independently by James Shore (https://github.com/james-shore/rh-proof-dependencies); ours
-agree closely with his (same 5,081 Mathlib modules; 28,750 unused project modules here against 28,897 there;
-we have not yet reconciled the difference of 147).
+agree with his exactly once the counting rule is matched: his README reports that, counting type and value
+references plus each inductive's constructors (our rule), the five theorems use 1,478,243 constants and
+`riemannHypothesis` alone 1,478,219, the same numbers as here; his larger total (1,484,729) follows
+`lean4export` in also including 6,486 recursors that no term refers to. Both find 5,081 Mathlib modules. His
+file count (146,292 files with a used declaration) is by source declaration; ours (146,437 modules
+contributing a constant) also counts compiler-generated constants. His dataset is the more complete one
+(edges labelled by kind, statement cones, duplicates, universes); use it first.
 
 | Check | Result |
 |---|---|
