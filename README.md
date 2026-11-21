@@ -17,8 +17,8 @@ proof (https://math.mit.edu/~drew/grh/ and the "Discussion: Alpöge Proves the R
 the Lean Zulip). The community copy of the source, with a build cache, is
 https://github.com/leanprover-community/riemann-hypothesis . Exact used/unused counts from the kernel terms
 were published independently by James Shore (https://github.com/james-shore/rh-proof-dependencies); ours
-agree with his (same 5,081 Mathlib modules; 28,750 unused project modules here against 28,897 there, the
-difference being how a module with only auxiliary constants is counted).
+agree closely with his (same 5,081 Mathlib modules; 28,750 unused project modules here against 28,897 there;
+we have not yet reconciled the difference of 147).
 
 | Check | Result |
 |---|---|
